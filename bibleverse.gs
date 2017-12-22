@@ -12,6 +12,7 @@ function showSidebar() {
   SlidesApp.getUi().showSidebar(sidebar);
 }
 
+// Add passage to current cursor location
 function addVerse(passage, version) {
   // Error checking
   checkPassage(passage);
@@ -21,25 +22,27 @@ function addVerse(passage, version) {
   var selection = presentation.getSelection();
   var textRange = selection.getTextRange();
   
-  // Adds verse to textbox
-  var textArray = splitText(getVerse(passage, version));
+  // Split text into pieces of limit size
+  var textArray = splitText(getVerse(passage, version) + "("+passage+")");
   
+  // Add first piece
   textRange.appendText(textArray[0]);
   
+  // Create additional slides, one piece per slide
   var index = getPageIndex(selection.getCurrentPage()) + 1;
   var parent = presentation.getSlides()[index-1];
   var title = parent.getPageElements()[0].asShape().getText().asString();
   var layout = parent.getLayout();
   
+  // Create slides in reverse order so only one index has to be used
   for (var i=textArray.length-1; i >= 1; i--) {
     presentation.insertSlide(index, layout);
     getTitleElement(index).appendText(title.replace(/\r?\n|\r/," ") + "cont.");
     getTextElement(index).appendText(textArray[i]);
   }
-
-  getTextElement(index+textArray.length-2).appendText("("+passage+")");
 }
 
+// Fetch verse from api
 function getVerse(passage, version) {
   var response = UrlFetchApp.fetch("http://getbible.net/json?passage=" + passage + "&version=" + version +"&raw=true");
   var json = response.getContentText();
@@ -85,6 +88,7 @@ function checkPassage(passage) {
   }
 }
 
+// Breaks text into limit sized pieces
 function splitText(text) {
   var wordLimit = 165;
   var textArray = text.split(" ");
@@ -97,12 +101,14 @@ function splitText(text) {
     if (endIndex > wordCount) {
       endIndex = wordCount;
     }
+    // Combine range of words into a string
     verseArray.push(textArray.slice(startIndex,endIndex).join(" "));
     startIndex += wordLimit;
   }
   return verseArray;
 }
 
+// Return page index based on ID
 function getPageIndex(page) {
   var slides = SlidesApp.getActivePresentation().getSlides();
   var idArray = [];
