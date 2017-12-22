@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+<style>
+    #options {
+        margin-top: 25px;
+    }
+    
+    .block + .error {
+        color: red;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+  $(function() {
+    $("#passage").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#submit").click();
+      }
+    })
+  });
+  
+  function submit() {
+    var passage = $('#passage').val();
+    var version = $('#version').val();
+    
+    $("#error").text("");
+    $("#error").css("display","none");
+    google.script.run.withFailureHandler(errorHandler).addVerse(passage, version);
+  }
+  
+  function errorHandler(error) {
+    if (error == "SelectionError") {
+      $("#error").text("Invalid Selection");
+      $("#error").css("display","initial");
+    }
+    if (error == "PassageError") {
+      $("#error").text("Invalid Passage");
+      $("#error").css("display","initial");
+    }
+  }
+</script>
+
+<div class="sidebar">
+
+    <div class="block">
+    
+        <div class="block form-group">
+            <label for="passage">
+                <b>Verse</b></label>
+            <input type="text" id="passage">
+            <div class="block error" id="error" style="display: none;"></div>
+        </div>
+        
+        <div class="block">
+            <button id="submit" class="blue" onclick="submit()">Add Verse</button>
+        </div>
+
+    </div>
+
+    <div class="block" id="options">
+    
+        <div class="block form-group">
+            <label for="version">
+                <b>Version</b></label>
+            <select id="version">
+                <option value="asv" selected>English: American Standard Version</option>
+                <option value="kjv">English: King James Version</option>
+                <option value="cnt">Chinese: NCV Traditional</option>
+            </select>
+            <br>
+            <input id="tail" type="checkbox">
+            <label for="tail">
+                <b>Add Refrence?</b></label>
+        </div>
+        
+    </div>
+    
+</div>
