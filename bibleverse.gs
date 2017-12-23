@@ -15,6 +15,12 @@ function showSidebar() {
 // Add passage to current cursor location
 function addVerse(passage, version) {
   // Error checking
+  
+  // For each call of addVerse() we are making two network trips to fetch verses.
+  // We can make it faster if we just make one call to fetch the verse.
+  // If response has nothing or invalid , we throw an error.
+  // Otherwise, we continue to process.
+  
   checkPassage(passage);
   checkSelection();
   
@@ -26,6 +32,10 @@ function addVerse(passage, version) {
   var textArray = splitText(getVerse(passage, version) + "("+passage+")");
   
   // Add first piece
+
+  // Need to handle if textArray is null or  empty.
+  // Or you may have array out of bound here.
+  
   textRange.appendText(textArray[0]);
   
   // Create additional slides, one piece per slide
@@ -43,6 +53,8 @@ function addVerse(passage, version) {
 }
 
 // Fetch verse from api
+// This is good for now. Later we will need to secure the parameter and version to prevent hackers.
+// They may pass in malicious parameters.
 function getVerse(passage, version) {
   var response = UrlFetchApp.fetch("http://getbible.net/json?passage=" + passage + "&version=" + version +"&raw=true");
   var json = response.getContentText();
